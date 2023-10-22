@@ -1,6 +1,6 @@
 # partygames
 
-Party Games using Socket.IO,
+Party Games using Socket.IO
 
 ## Games
 
