@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Create Rankedify Game</title>
+    <style>
+      body {
+        font-family: 'Arial', sans-serif;
+        background-color: #ecf0f1;
+        color: #2c3e50;
+        margin: 0;
+        padding: 0;
+      }
+
+      a {
+        color: #3498db;
+        text-decoration: none;
+      }
+
+      a:hover {
+        color: #2980b9;
+      }
+
+      h1 {
+        color: #3498db;
+        margin: 1vw;
+      }
+
+      div {
+        background-color: #fff;
+        border: 2px solid #3498db;
+        border-radius: 0.5vw;
+        padding: 1vw;
+        margin: 1vw;
+      }
+
+      input {
+        padding: 10px;
+        margin: 0.25vw;
+        border: 2px solid #3498db;
+        border-radius: 5px;
+      }
+
+      form {
+        margin-top: 20px;
+      }
+
+      button {
+        background-color: #3498db;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        padding: 10px 20px;
+        margin: 5px;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background-color: #2980b9;
+      }
+
+      #rankedifyDisplay {
+        width: 96vw;
+        height: 54vw;
+        border: 1px solid #3498db;
+      }
+    </style>
+  </head>
+  <body>
+    <a href="\">Home</a><h1 style="display: inline-block;margin-left: 20px;">Join Game</h1>
+    <form id="hostGame">
+        <button id="start">Host Game</button>
+    </form>
+    <div id="rankedifyDisplay">
+      <h1 id="codeDisplay">Join Code: </h1>
+      <h1 id="playersDisplay">Players: </h1>
+    </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        var navigator_info = window.navigator;
+        var screen_info = window.screen;
+        var uid = navigator_info.mimeTypes.length + navigator_info.userAgent.replace(/\D+/g, '') + navigator_info.plugins.length + screen_info.height || '' + screen_info.width || '' + screen_info.pixelDepth || '';
+        var form = document.getElementById("hostGame")
+        var username = document.getElementById("user")
+        var codeDisplay = document.getElementById("codeDisplay")
+        var playersDisplay = document.getElementById("playersDisplay")
+        var playerList = []
+        var socket = io();
+
+        //socket.emit('chat message', value);
+
+        form.addEventListener('submit', function(e) {
+        e.preventDefault();
+          socket.emit('createGame', "rankedify");
+          form.style.display = "none";
+        });
+
+        var gameCode;
+        socket.on('createGame', function(gmc) {
+            codeDisplay.innerHTML = "Join Code: " + gmc
+            gameCode = gmc
+            socket.on(gameCode, function(args) {
+            if (args[1] == "joined") {
+              playerList.push(args[0])
+              playersDisplay.innerHTML = "Players: " + playerList.join(", ")
+            }
+          })
+        })
+
+    </script>
+  </body>
+</html>

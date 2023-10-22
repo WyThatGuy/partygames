@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Join Game</title>
+    <style>
+        body {
+            margin: 0px;
+        }
+    </style>
+  </head>
+  <body>
+    <a href="\">Home</a><h1 style="display: inline-block;margin-left: 20px;">Join Game</h1>
+    <form id="joinGame">
+        <input id="user" type="text" placeholder="Username"/>
+        <input id="code" type="text" placeholder="Join Code"/>
+        <button>Join Game</button>
+    </form>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        var form = document.getElementById("joinGame")
+        var username = document.getElementById("user")
+        var code = document.getElementById("code")
+        
+        var socket = io();
+
+        form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        if (username.value && code.value && code.value.length == 5) {
+            socket.emit(code.value, [username.value, "join"]);
+            socket.on(code.value, function(info) {
+                if (info == "connected") {
+                    form.style.display = "none";
+                    alert("connected!")
+                } else if (info == "hostPrivileges") {
+                    form.style.display = "none";
+                    alert("you are the host")
+                    document.getElementById("rankedifyHostPrivileges").style.display = "block"
+                }
+            })
+        }
+        });
+
+        function tryForStart() {
+            console.log("trying for start")
+            socket.emit(code.value, [username.value, "start"])
+        }
+    </script>
+    <div id="rankedifyDiv">
+        <center><h1 style="text-align: center; color: #3498db;">Rankedify</h1></center>
+        <div style="display: none;" id="rankedifyHostPrivileges">
+            <button onclick="tryForStart()">Start Game</button>
+        </div>
+        <div id="wordChooserDiv">
+            <h3 style="color: #3498db;">Select an adjective:</h3>
+            <button class="selectword" onclick="selectWord(1)">Word 1</button>
+            <button class="selectword" onclick="selectWord(2)">Word 2</button>
+            <button class="selectword" onclick="selectWord(3)">Word 3</button>
+            <button class="selectword" onclick="selectWord(4)">Word 4</button>
+            <button class="selectword" onclick="selectWord(5)">Word 5</button>
+        </div>
+        <div id="dragNDrop">
+            <h3 style="color: #3498db;">Your Minigame: Drag And Drop</h3>
+            <div class="droppable" ondrop="drop(event)" ondragover="allowDrop(event)"></div><br/>
+            <div class="droppable" ondrop="drop(event)" ondragover="allowDrop(event)"></div><br/>
+            <div class="droppable" ondrop="drop(event)" ondragover="allowDrop(event)"></div><br/>
+            <div class="droppable" ondrop="drop(event)" ondragover="allowDrop(event)"></div><br/>
+            <p class="draggable" draggable="true" ondragstart="drag(event)" id="1">Option 1</p>
+            <p class="draggable" draggable="true" ondragstart="drag(event)" id="2">Option 2</p>
+            <p class="draggable" draggable="true" ondragstart="drag(event)" id="3">Option 3</p>
+            <p class="draggable" draggable="true" ondragstart="drag(event)" id="4">Option 4</p>
+            <script>
+                let draggedElement = null;
+            
+                function drag(event) {
+                  draggedElement = event.target;
+                }
+            
+                function allowDrop(event) {
+                  event.preventDefault();
+                }
+            
+                function drop(event) {
+                  event.preventDefault();
+            
+                  // If the drop target is a droppable div
+                  if (event.target.classList.contains('droppable')) {
+                    // If the div already contains a p element, replace it
+                    if (event.target.querySelector('p')) {
+                      // Remove the existing p element
+                      document.getElementById("dragNDrop").appendChild(event.target.querySelector('p').cloneNode(true))
+                      event.target.querySelector('p').remove();
+                    }
+            
+                    // Append the dragged p element to the div
+                    event.target.appendChild(draggedElement.cloneNode(true));
+            
+                    // Reset the dragged element
+                    draggedElement.remove()
+                    draggedElement = null;
+                  } else if (event.target.parentNode.classList.contains('droppable')) {
+                    // If the div already contains a p element, replace it
+                    document.getElementById("dragNDrop").appendChild(event.target.cloneNode(true))
+                    
+                    // Append the dragged p element to the div
+                    event.target.parentNode.appendChild(draggedElement.cloneNode(true));
+                    event.target.remove();
+    
+                    // Reset the dragged element
+                    draggedElement.remove()
+                    draggedElement = null;
+                  }
+                }
+              </script>
+        </div>
+        <style>
+            .droppable {
+                min-height: 32px;
+                min-width: 50px;
+                background-color: lightgray;
+                margin-top: 10px;
+                border: 2px dashed #3498db;
+                border-radius: 10px;
+                display: inline-block;
+            }
+    
+            .draggable {
+                background-color: gray;
+                min-height: 20px;
+                min-width: 40px;
+                margin: 10px;
+                padding: 10px;
+                cursor: move;
+                background-color: #3498db;
+                border-radius: 5px;
+                display: inline-block;
+                color: #fff;
+            }
+    
+            .draggable:hover {
+                background-color: #2980b9;
+            }
+    
+            .draggable:active {
+                position: relative;
+                z-index: 1000;
+            }
+    
+            #rankedifyDiv {
+                font-family: 'Arial', sans-serif;
+                background-color: #ecf0f1;
+                color: #2c3e50;
+                padding: 10px;
+                height: 100%;
+            }
+    
+            #wordChooserDiv {
+                text-align: center;
+                background-color: #fff;
+                border: 2px solid #3498db;
+                border-radius: 10px;
+                padding: 20px;
+                margin: 20px auto;
+                width: 60%;
+            }
+    
+            .selectword {
+                background-color: #3498db;
+                color: #fff;
+                border: none;
+                border-radius: 5px;
+                padding: 10px 20px;
+                margin: 5px;
+                cursor: pointer;
+            }
+    
+            .selectword:hover {
+                background-color: #2980b9;
+            }
+    
+            #wordChooserDiv {
+                display: none;
+            }
+        </style>
+    </div>
+  </body>
+</html>
